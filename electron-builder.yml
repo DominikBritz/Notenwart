@@ -15,7 +15,9 @@ mac:
       arch: [arm64]
     - target: zip
       arch: [arm64]
-  identity: null
+  # Ad-hoc-Signatur ("-"): ohne Apple-Zertifikat, aber mit gültigem Siegel. Mit
+  # identity: null bleibt das Siegel kaputt, macOS meldet dann "beschädigt".
+  identity: "-"
   hardenedRuntime: false
   gatekeeperAssess: false
 win:

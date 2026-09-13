@@ -5,16 +5,15 @@ Die App ist nicht signiert (kein Apple-Developer-Account, kein Windows-Zertifika
 ## macOS (Apple Silicon)
 
 1. `Notenwart-<Version>-arm64.dmg` öffnen und die App in den Ordner *Programme* ziehen.
-2. Beim ersten Start meldet macOS „Notenwart ist beschädigt und kann nicht geöffnet werden“ oder „kann nicht überprüft werden“. Das liegt nur an der fehlenden Signatur.
-3. Terminal öffnen und einmalig ausführen:
+2. Beim ersten Start meldet macOS, dass Apple nicht überprüfen konnte, ob die App frei von Schadsoftware ist. Das liegt nur an der fehlenden Apple-Signatur. Dialog mit **Fertig** schließen.
+3. *Systemeinstellungen > Datenschutz & Sicherheit* öffnen, nach unten scrollen und bei „Notenwart wurde blockiert“ auf **Trotzdem öffnen** klicken, dann bestätigen.
+4. Danach startet die App normal per Doppelklick.
+
+Alternative per Terminal (auch für Versionen bis 0.3.0, bei denen macOS „Notenwart ist beschädigt“ meldet und kein „Trotzdem öffnen“ anbietet):
 
 ```bash
 xattr -cr "/Applications/Notenwart.app"
 ```
-
-4. Danach startet die App normal per Doppelklick.
-
-Alternative ohne Terminal: In *Systemeinstellungen > Datenschutz & Sicherheit* nach unten scrollen, dort erscheint nach dem ersten Startversuch „Trotzdem öffnen“.
 
 ## Windows (64 Bit)
 

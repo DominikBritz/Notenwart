@@ -17,6 +17,8 @@ interface AutorunConfig {
   screenshot: string | null;
   exportDir: string | null;
   mode: Mode;
+  /** Nur Screenshot-Modus: Einstellungen-Dialog geöffnet fotografieren */
+  openSettings?: boolean;
 }
 
 export interface AutorunUiState {
@@ -28,17 +30,20 @@ export interface AutorunUiState {
 }
 
 /** Läuft nur, wenn die App mit SE_AUTORUN gestartet wurde. Liefert false ohne Autorun, true nach Abschluss,
+ * 'einstellungen' für den Start mit geöffnetem Einstellungen-Dialog (Screenshot),
  * oder einen UI-Zustand, wenn per SE_SCREENSHOT die Kontrollansicht fotografiert werden soll. */
-export async function maybeAutorun(): Promise<boolean | AutorunUiState> {
+export async function maybeAutorun(): Promise<boolean | 'einstellungen' | AutorunUiState> {
   const cfg = (await window.api.invoke('autorun:config')) as AutorunConfig | null;
   if (!cfg) return false;
   if (!cfg.paths.length && cfg.screenshot) {
-    // nur Startbildschirm fotografieren
+    // nur Startbildschirm (oder Einstellungen) fotografieren; Statusprüfung der CLIs braucht etwas Zeit
     setTimeout(async () => {
+      // Einstellungen: zum KI-Abschnitt scrollen, damit er im Bild ist
+      if (cfg.openSettings) document.querySelector('.modal')?.scrollTo(0, 10_000);
       await window.api.invoke('autorun:screenshot', cfg.screenshot);
       await window.api.invoke('autorun:done', null, null);
-    }, 1500);
-    return false;
+    }, cfg.openSettings ? 6000 : 1500);
+    return cfg.openSettings ? 'einstellungen' : false;
   }
   const log = (m: string) => window.api.log(m);
   const settings = (await window.api.invoke('settings:get')) as Settings;

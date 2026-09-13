@@ -23,7 +23,7 @@ const STEPS: { id: Step; label: string }[] = [
 
 const MODE_LABEL: Record<Mode, string> = { suchen: 'Stimmen heraussuchen', aufteilen: 'Stimmen aufteilen' };
 
-export default function App({ initial }: { initial?: AutorunUiState }) {
+export default function App({ initial, openSettings = false }: { initial?: AutorunUiState; openSettings?: boolean }) {
   const [mode, setMode] = useState<Mode | null>(initial?.mode ?? null);
   const [step, setStep] = useState<Step>(initial ? 'kontrolle' : 'start');
   const [files, setFiles] = useState<FileInfo[]>(initial?.files ?? []);
@@ -53,6 +53,7 @@ export default function App({ initial }: { initial?: AutorunUiState }) {
       const st = s as Settings;
       setSettings(st);
       setOutputDir(st.lastOutputFolder ?? null);
+      if (openSettings) setShowSettings(true); // Screenshot-Modus: erst mit geladenen Einstellungen öffnen
       if (!initial && st.lastQueries?.length) setQueries((q) => (q.length ? q : st.lastQueries.map((raw) => ({ raw, part: parseQuery(raw) }))));
     });
     window.api.invoke('system:cpus').then((n) => setCpus(Number(n)));

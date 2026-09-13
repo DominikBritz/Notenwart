@@ -23,6 +23,8 @@ export async function getSettings(): Promise<Settings> {
         ...(raw.ai ?? {}),
         presetModels: { ...DEFAULT_SETTINGS.ai.presetModels, ...(raw.ai?.presetModels ?? {}) },
         custom: { ...DEFAULT_SETTINGS.ai.custom, ...(raw.ai?.custom ?? {}) },
+        claude: { ...DEFAULT_SETTINGS.ai.claude, ...(raw.ai?.claude ?? {}) },
+        codex: { ...DEFAULT_SETTINGS.ai.codex, ...(raw.ai?.codex ?? {}) },
       },
     };
   } catch {

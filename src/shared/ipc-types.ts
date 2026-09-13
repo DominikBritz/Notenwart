@@ -75,6 +75,28 @@ export interface AiClassifyResponse {
   model?: string;
 }
 
+export interface AiProbeModel {
+  id: string;
+  label: string;
+  isDefault: boolean;
+}
+
+/** Verbindungsstatus einer lokalen CLI – nie Token oder Schlüssel, nur Anzeige-Metadaten. */
+export interface AiProbe {
+  provider: 'claude' | 'codex';
+  /** Aufgelöster Binary-Pfad (leer, wenn nicht gefunden) */
+  target: string;
+  version?: string;
+  /** Login gültig – Aufrufe sind möglich */
+  loggedIn: boolean;
+  /** z.B. „Claude Max“, „ChatGPT Pro“ */
+  authLabel?: string;
+  email?: string;
+  models: AiProbeModel[];
+  /** Fehler oder Hinweis (nicht angemeldet, Binary fehlt …) */
+  message?: string;
+}
+
 export interface CacheEntry {
   info: FileInfo;
   analysis: FileAnalysis;

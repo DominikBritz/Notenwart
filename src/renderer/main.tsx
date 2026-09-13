@@ -10,13 +10,13 @@ maybeAutorun().then((handled) => {
     root.render(<main style={{ padding: 24 }}>Autorun abgeschlossen.</main>);
     return;
   }
-  if (handled) {
+  if (handled && handled !== 'einstellungen') {
     root.render(<App initial={handled} />);
     return;
   }
   root.render(
     <React.StrictMode>
-      <App />
+      <App openSettings={handled === 'einstellungen'} />
     </React.StrictMode>,
   );
 });

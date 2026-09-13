@@ -4,9 +4,9 @@ import { readPdf, scanPaths } from './files';
 import { cacheStats, clearCache, getCached, setCached } from './cache';
 import { getSettings, setSettings } from './settings';
 import { findExisting, runExport } from './exporter';
-import { aiClassify, fetchOpenRouterPricing } from './ai';
+import { aiClassify, aiProbe, fetchOpenRouterPricing } from './ai';
 import type { AiClassifyRequest, ExportRequest, FileInfo } from '@shared/ipc-types';
-import type { Settings } from '@shared/settings';
+import type { CliProvider, Settings } from '@shared/settings';
 import type { FileAnalysis } from '@shared/types';
 
 export function registerIpc(): void {
@@ -79,16 +79,18 @@ export function registerIpc(): void {
 
   ipcMain.handle('ai:classify', async (_e, req: AiClassifyRequest) => aiClassify(req, await getSettings()));
   ipcMain.handle('ai:pricing', (_e, models: string[]) => fetchOpenRouterPricing(models));
+  ipcMain.handle('ai:probe', (_e, provider: CliProvider, binary: string) => aiProbe(provider, binary));
 
   ipcMain.handle('shell:openPath', (_e, p: string) => shell.openPath(p));
   ipcMain.handle('shell:showInFolder', (_e, p: string) => shell.showItemInFolder(p));
   ipcMain.handle('system:cpus', () => require('node:os').cpus().length);
 
   // Autorun für Tests: SE_AUTORUN=<Ordner oder Datei[;Datei…]> SE_OUT=<json> [SE_QUERY="Trompete 1"] [SE_MODE=aufteilen] [SE_FORCE=1] [SE_LIMIT=n] [SE_EXPORT=<Ordner>]
+  // Nur Screenshot: SE_SCREENSHOT=<png> [SE_SETTINGS=1 öffnet den Einstellungen-Dialog]
   ipcMain.handle('autorun:config', () => {
     if (!process.env.SE_AUTORUN) {
       return process.env.SE_SCREENSHOT
-        ? { paths: [], out: null, query: null, force: false, limit: 0, screenshot: process.env.SE_SCREENSHOT, exportDir: null, mode: 'suchen' }
+        ? { paths: [], out: null, query: null, force: false, limit: 0, screenshot: process.env.SE_SCREENSHOT, exportDir: null, mode: 'suchen', openSettings: process.env.SE_SETTINGS === '1' }
         : null;
     }
     return {

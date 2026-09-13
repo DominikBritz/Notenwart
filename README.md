@@ -32,7 +32,7 @@ Beiden gemeinsam:
 - **Kontrolle vor dem Export** mit Miniaturen, Großansicht, Konfidenz und manueller Korrektur.
 - **Mehrere Stimmen pro Lauf**, je eine PDF, Lesezeichen pro Stück.
 - **Cache.** Erkannte Ergebnisse werden gespeichert, ein zweiter Lauf über denselben Bestand ist sofort fertig.
-- **Optionale KI-Erkennung** für schlechte Scans über eine OpenAI-kompatible Schnittstelle (OpenRouter, OpenAI oder lokal mit Ollama). Standardmäßig aus.
+- **Optionale KI-Erkennung** für schlechte Scans. Anbieter nach Wahl: OpenRouter mit eigenem Schlüssel, die lokal installierte Claude-Code- oder Codex-CLI mit der eigenen Subscription (kein Schlüssel in der App), oder ein OpenAI-kompatibler Endpoint (OpenAI, lokal mit Ollama). Standardmäßig aus.
 
 ## So sieht es aus
 
@@ -78,7 +78,7 @@ Fertige Builds liegen unter [Releases](../../releases). Die App ist nicht signie
 2. Sonst **OCR** des Kopfbereichs mit tesseract.js, in drei Auflösungen, weil 1-Bit-Scans in Originalauflösung schlecht lesbar sind. Ohne Treffer wird die Seite gedreht, für quer eingescannte Blätter.
 3. **Klassifikation** über eine Synonymtabelle mit Fehlertoleranz: Instrument, Nummer, Stimmung, Schlüssel. Mehrere verschiedene Stimmen auf einer Seite bedeuten Partitur. Titelwörter („Polka für Trompete“) zählen nicht als Stimme.
 4. **Zuordnung** der Seiten zu Abschnitten: Eine Überschrift gilt bis zur nächsten, Partiturseiten unterbrechen.
-5. Optional **KI**: Der Kopfbereich wird als Bild an ein Vision-Modell geschickt, nur für unsichere Seiten oder für alle.
+5. Optional **KI**: Der Kopfbereich wird als Bild an ein Vision-Modell geschickt, nur für unsichere Seiten oder für alle. Bei Claude Code oder Codex startet die App dafür die lokale CLI (`claude -p` bzw. `codex exec`) ohne Werkzeuge und ohne Session-Dateien; der Login bleibt bei der CLI, die Nutzung zählt gegen das Limit des Abos.
 
 Auf einem Bestand von 189 PDFs mit 2969 Seiten (99 % Scans) dauert der Erstlauf rund 8 Minuten; 95 % der Seiten werden ohne KI zugeordnet.
 
@@ -109,7 +109,7 @@ Testlauf ohne Oberfläche:
 SE_AUTORUN=/pfad/zu/noten SE_OUT=ergebnis.json SE_QUERY="Trompete 1" npx electron out/main/index.js
 ```
 
-`SE_FORCE=1` ignoriert den Cache, `SE_LIMIT=10` begrenzt die Dateianzahl, `SE_EXPORT=/ziel` exportiert die Treffer, `SE_SCREENSHOT=bild.png` fotografiert die Kontrollansicht. `SE_MODE=aufteilen` läuft im Aufteilen-Modus: Der Bericht enthält dann die Buckets je Stück, und `SE_EXPORT` legt die Ordnerstruktur an.
+`SE_FORCE=1` ignoriert den Cache, `SE_LIMIT=10` begrenzt die Dateianzahl, `SE_EXPORT=/ziel` exportiert die Treffer, `SE_SCREENSHOT=bild.png` fotografiert die Kontrollansicht (ohne `SE_AUTORUN` den Startbildschirm, mit `SE_SETTINGS=1` den Einstellungen-Dialog). `SE_MODE=aufteilen` läuft im Aufteilen-Modus: Der Bericht enthält dann die Buckets je Stück, und `SE_EXPORT` legt die Ordnerstruktur an.
 
 ### Aufbau
 
@@ -118,6 +118,7 @@ src/shared/     Erkennungslogik ohne Electron-Abhängigkeit
                 instruments.ts (Synonyme), matcher.ts, classify.ts, assign.ts, filename.ts
 src/renderer/   Oberfläche (React) und Analyse-Pipeline (pdf.js, tesseract.js)
 src/main/       Dateizugriff, Cache, Einstellungen, Export (pdf-lib), KI-Aufruf
+                ai.ts (HTTP), claude-cli.ts / codex-cli.ts (lokale CLIs), cli-common.ts
 tests/          vitest
 docs/           Installationshinweise, Screenshots
 ```
